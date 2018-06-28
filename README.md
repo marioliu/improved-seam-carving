@@ -1,4 +1,4 @@
-**TLDR:** In class, I learned the most basic version of seam carving. Then I read about the improved seam carving algorithm by the same author. I implemented both methods really fast using numpy. I can probably make them even faster and add them to scikit-image.
+**TLDR:** In class, I learned the most basic version of seam carving. Then I read about the improved seam carving algorithm by the same author. I implemented both methods using numpy and hope to [add them to scikit-image.](https://github.com/scikit-image/scikit-image/issues/3082)
 
 [Was No. 1 on Show | Hacker News for a day.](https://news.ycombinator.com/item?id=17165889)
 
@@ -15,7 +15,10 @@ https://nbviewer.jupyter.org/github/axu2/improved-seam-carving/blob/master/Impro
 
 Above left is the original 714-by-186 pixel image; above middle are the vertical seams; above right is the result after removing 554 vertical seams.
 
-This technique is taught in many CS curriculums, including CS 61B at UC Berkeley and [mine](https://www.cs.princeton.edu/courses/archive/spring16/cos226/assignments/seamCarving.html). 
+This technique is taught in many Data Structures courses such as:
+* CS 61B at UC Berkeley
+* CIS 121 at UPenn
+* [COS 226 at Princeton](https://www.cs.princeton.edu/courses/archive/spring16/cos226/assignments/seamCarving.html). 
 
 But these classes neglect to mention the improved seam carving algorithm, published the year after the original.
 
@@ -33,8 +36,6 @@ In this notebook, I will be implementing both methods using numpy and scikit-ima
 
 I believe my implementation of the second method is more optimal than any other Python implementation I've seen on Google or GitHub, though I note more potential optimizations in the notebook that could potentially make forward energy just as fast or even faster than backwards energy as its implemented right now in scikit-image.
 
-[I hope to add it to scikit-image.](https://github.com/scikit-image/scikit-image/issues/3082)
-
 ## Implementation Details
 
 For more details, read the original [seam carving paper](http://www.faculty.idc.ac.il/arik/SCWeb/imret/index.html) 
@@ -42,9 +43,26 @@ and the [Improved Seam Carving](http://www.faculty.idc.ac.il/arik/SCWeb/vidret/i
 
 Both papers introduce different ways to "calculate the energy of a pixel, which is a measure of its importance—the higher the energy, the less likely that the pixel will be included as part of a seam."
 
-The first paper determined the energy of a pixel using some edge detection algorithm.
+The first paper determined the energy of a pixel by looking at its 4 surrounding neighbors. (e.g. dual gradient.)
 
-The second paper determined the energy of a pixel by calculating the gradient of the new edges that are introduced in the image after removing a seam containing that pixel.
+The second paper determined the energy of a pixel by looking
+>forward at the resulting
+image instead of backward at the image before removing the
+seam. At each step, we search for the seam whose removal inserts
+the minimal amount of energy into the image. These are seams that
+are not necessarily minimal in their energy, but will leave less artifacts
+in the resulting image, after removal. This coincides with
+the assumption that natural images are piece-wise smooth intensity
+surfaces, which is a popular assumption in the literature.
+
+><img src='forward.png' width=600>
+
+>Calculating the three possible vertical seam step costs
+for pixel p<sub>i,j</sub> using forward energy. After removing the seam, new
+neighbors (in gray) and new pixel edges (in red) are created. In
+each case the cost is defined by the forward difference in the newly
+created pixel edges. Note that the new edges created in row i − 1
+were accounted for in the cost of the previous row pixel.
 
 The two resulting energy maps of the bench image using the two methods look like this, where higher energy pixels are brighter:
 
